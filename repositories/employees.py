@@ -29,7 +29,7 @@ def get_by_email(email):
 
 def get_by_id(id):
     query = """
-        SELECT id, name, password_hash, email 
+        SELECT id, name, password_hash, email, title
         FROM employees
         WHERE id = %s
     """

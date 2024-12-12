@@ -8,6 +8,10 @@ migrations = [
 
 def up(n):
     for m in migrations:
+        print("Setting migration")
         m.up(DB_CONFIG)
-#
-# def down():
+
+def down():
+    for m in migrations:
+        print("Downgrading")
+        m.down(DB_CONFIG)
