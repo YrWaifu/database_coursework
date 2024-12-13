@@ -16,11 +16,11 @@ def add_testdrive():
         register_number = st.text_input("Регистрационный номер вертолета")
 
         if st.button("Отправить", key=1):
-            if not employee_email:
+            if not employees.get_by_email(employee_email):
                 st.error("Такой сотрудник не существует")
                 return
             employee_id = employees.get_by_email(employee_email)[0]
-            if not register_number:
+            if not helicopters.get_by_register_number(register_number):
                 st.error("Такой вертолет отсутствует в базе")
                 return
             helicopter_id = helicopters.get_by_register_number(register_number)[0]

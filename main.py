@@ -1,7 +1,7 @@
 from database.migrations import up, down
 import os
 import sys
-import services
+from services.auth import register
 from database import enum
 import streamlit as st
 
@@ -19,10 +19,10 @@ if args[0] == "down":
     down()
 
 if args[0] == "createsuperuser":
-    name = input("name: ")
-    email = input("email: ")
-    password = input("password: ")
-    services.auth.register(name, email, password, enum.сeo)
+    name = input("name:")
+    email = input("email:")
+    password = input("password:")
+    register(name, email, password, enum.сeo)
 
 # if args[0] == "startapp":
 #     pg = st(pages)

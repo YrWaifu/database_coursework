@@ -1,5 +1,5 @@
 import psycopg2
-
+import pandas as pd
 from settings import DB_CONFIG
 
 
@@ -36,3 +36,18 @@ def get_by_serial_number(serial_number):
         with conn.cursor() as cur:
             cur.execute(query, [serial_number])
             return cur.fetchone()
+
+def show():
+    query = """
+            SELECT *
+            FROM parts
+        """
+
+    with psycopg2.connect(**DB_CONFIG) as conn:
+        with conn.cursor() as cur:
+            cur.execute(query, [])
+
+            rows = cur.fetchall()
+            columns = [desc[0] for desc in cur.description]
+            df = pd.DataFrame(rows, columns=columns)
+            return df

@@ -18,7 +18,7 @@ def add_part():
             try:
                 parts.insert(name, drawing_number, serial_number)
             except psycopg2.errors.UniqueViolation:
-                st.success("Деталь с таким серийным номером уже добавлена")
+                st.error("Деталь с таким серийным номером уже добавлена")
                 return
 
             st.success("Деталь успешно добавлен!")
@@ -35,7 +35,7 @@ def delete_part():
             try:
                 parts.delete(serial_number)
             except psycopg2.errors.UniqueViolation:
-                st.success("Деталь с таким серийным номером уже добавлен")
+                st.error("Деталь с таким серийным номером уже добавлен")
                 return
 
             st.success(f"Деталь с регистрационным номером {serial_number} успешно удален!")
@@ -78,23 +78,27 @@ def connection_helicopter_part():
 def delete_connection_part():
     with st.expander("Отвязать деталь"):
         serial_number = st.text_input("Серийный номер", key=10)
-        part_id = parts.get_by_serial_number(serial_number)
-        if not part_id:
-            st.error("Деталь с таким серийным номером или отсутствует, или никуда не привязана")
-            return
-        part_id = part_id[0]
-        helicopter_id = helicopter_parts.get_by_part_id(part_id)[0]
-        helicopter = helicopters.get_by_id(helicopter_id)
 
         if st.button("Отправить", key=43):
+            part_id = parts.get_by_serial_number(serial_number)
+            if not part_id:
+                st.error("Деталь с таким серийным номером или отсутствует, или никуда не привязана")
+                return
+            part_id = part_id[0]
+            helicopter_id = helicopter_parts.get_by_part_id(part_id)[0]
+            helicopter = helicopters.get_by_id(helicopter_id)
             helicopter_parts.delete(part_id)
 
             st.success(f"Деталь с регистрационным номером {serial_number} успешно отвязана от вертолета {helicopter[1]} с серийным номером {helicopter[-1]}!")
 
+def show_all():
+    df = parts.show()
+    AgGrid(df, fit_columns_on_grid_load=True)
 
 if ("user_id" in st.session_state) and ((employees.get_by_id(st.session_state["user_id"])[4] == enum.сeo) or (employees.get_by_id(st.session_state["user_id"])[4] == enum.engineer)):
     add_part()
-    delete_connection_part()
     delete_part()
     connection_helicopter_part()
+    delete_connection_part()
     show_helicopter_parts()
+    show_all()

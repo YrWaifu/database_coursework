@@ -15,7 +15,7 @@ def add_helicopter():
             try:
                 helicopters.insert(model, name, register_number)
             except psycopg2.errors.UniqueViolation:
-                st.success("Вертолет с таким серийным номером уже добавлен")
+                st.error("Вертолет с таким регистрационным номером уже добавлен")
                 return
 
             st.success("Вертолет успешно добавлен!")
@@ -29,11 +29,10 @@ def delete_helicopter():
         register_number = st.text_input("Регистрационный номер", key=3)
 
         if st.button("Отправить", key=4):
-            try:
-                helicopters.delete(register_number)
-            except psycopg2.errors.UniqueViolation:
-                st.success("Вертолет с таким регистрационным номером уже добавлен")
+            if not helicopters.get_by_register_number(register_number):
+                st.error("Вертолет с таким регистрационным номером отсутствует")
                 return
+            helicopters.delete(register_number)
 
             st.success(f"Вертолет с регистрационным номером {register_number} успешно удален!")
 
