@@ -1,8 +1,8 @@
 import streamlit as st
-from repositories import employees, helicopters
-from st_aggrid import AgGrid
+from streamlit.runtime.media_file_storage import MediaFileStorageError
 
-if "user_id" in st.session_state:
-    user_id = st.session_state["user_id"]
-    user = employees.get_by_id(user_id)
-    st.success(f"Привет, {user[1]}!")
+image_path = "images/main.jpeg"
+try:
+    st.image(image_path, use_container_width=True)
+except MediaFileStorageError:
+    st.text("Добро пожаловать в веб-сервис для автоматизации работы вертолетного завода.")

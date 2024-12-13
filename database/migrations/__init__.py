@@ -5,7 +5,8 @@ from settings import DB_CONFIG
 migrations = [
     importlib.import_module("database.migrations.001_init"),
     importlib.import_module("database.migrations.002_fix3NF"),
-    importlib.import_module("database.migrations.003_addUNIQ")
+    importlib.import_module("database.migrations.003_addUNIQ"),
+    importlib.import_module("database.migrations.004_addedLOGS")
 ]
 
 def up(n):

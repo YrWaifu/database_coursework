@@ -49,6 +49,7 @@ def show_helicopter_parts():
         if st.button("Отправить", key=23123):
             if not helicopter:
                 st.error("Такого вертолета не существует")
+                return
             df = helicopter_parts.get_parts_helicopter(helicopter[0])
             AgGrid(df, fit_columns_on_grid_load=True)
 
@@ -74,9 +75,26 @@ def connection_helicopter_part():
             helicopter_parts.insert(helicopter[0], part[0])
             st.success(f"Деталь успешно привязана")
 
+def delete_connection_part():
+    with st.expander("Отвязать деталь"):
+        serial_number = st.text_input("Серийный номер", key=10)
+        part_id = parts.get_by_serial_number(serial_number)
+        if not part_id:
+            st.error("Деталь с таким серийным номером или отсутствует, или никуда не привязана")
+            return
+        part_id = part_id[0]
+        helicopter_id = helicopter_parts.get_by_part_id(part_id)[0]
+        helicopter = helicopters.get_by_id(helicopter_id)
+
+        if st.button("Отправить", key=43):
+            helicopter_parts.delete(part_id)
+
+            st.success(f"Деталь с регистрационным номером {serial_number} успешно отвязана от вертолета {helicopter[1]} с серийным номером {helicopter[-1]}!")
+
 
 if ("user_id" in st.session_state) and ((employees.get_by_id(st.session_state["user_id"])[4] == enum.сeo) or (employees.get_by_id(st.session_state["user_id"])[4] == enum.engineer)):
     add_part()
+    delete_connection_part()
     delete_part()
     connection_helicopter_part()
     show_helicopter_parts()
