@@ -1,6 +1,8 @@
 import psycopg2
 import streamlit as st
-from repositories import helicopters, employees, parts, helicopter_parts
+from st_aggrid import AgGrid
+
+from repositories import helicopters, employees, parts, helicopter_parts, groups, group_helicopter
 from database import enum
 
 def add_helicopter():
@@ -35,27 +37,47 @@ def delete_helicopter():
 
             st.success(f"Вертолет с регистрационным номером {register_number} успешно удален!")
 
-def connection_helicopter_part():
-    with st.expander("Привязать деталь к вертолету"):
-        register_number = st.text_input("Регистрационный номер вертолета", key=5)
-        serial_number = st.text_input("Серийный номер детали", key=7)
+def connection_helicopter_employee():
+    with st.expander("Привязать отдел к вертолету"):
+        register_number = st.text_input("Регистрационный номер вертолета", key=65)
+        group_name = st.text_input("Название отдела", key=77)
 
-        if st.button("Отправить", key=6):
+        if st.button("Отправить", key=654):
             helicopter = helicopters.get_by_register_number(register_number)
-            part = parts.get_by_serial_number(serial_number)
+            group = groups.get_by_name(group_name)
+
+            if not group:
+                st.error("Такой отдел отсутсвует")
+                return
 
             if not helicopter:
                 st.error("Вертолет с таким регистрационным номером отсутствует")
                 return
-            if not part:
-                st.error("Деталь с таким серийным номером отсутствует")
+
+            group_helicopter.insert(helicopter[0], group[0])
+            st.success(f"Вертолет {helicopters.get_by_register_number(register_number)[3]} успешно привязан к отделу {group_name}")
+
+def delete_connection_group_helicopter():
+    with st.expander("Отвязать вертолет от отдела"):
+        register_number = st.text_input("Регистрационный номер вертолета", key=6523)
+        group_name = st.text_input("Название отдела", key=4477)
+
+        if st.button("Отправить", key=13654):
+            group = groups.get_by_name(group_name)
+
+            if not group:
+                st.error("Такой отдел отсутсвует")
                 return
-            if helicopter_parts.check_amount(part[0])[0] > 0:
-                st.error("Деталь уже используется")
+            helicopter = helicopters.get_by_register_number(register_number)
+
+            if not helicopter:
+                st.error("Вертолет с таким регистрационным номером отсутствует")
                 return
 
-            helicopter_parts.insert(helicopter[0], part[0])
-            st.success(f"Деталь успешно привязана")
+            group_helicopter.delete(helicopter[0], group[0])
+            st.success(
+                f"Вертолет {helicopters.get_by_register_number(register_number)[3]} успешно отвязан от отдела {group_name}")
+
 
 def delete_part():
     with st.expander("Отвязать деталь"):
@@ -74,10 +96,16 @@ def delete_part():
             st.success(f"Деталь с регистрационным номером {serial_number} успешно отвязана от вертолета {helicopter[1]} с серийным номером {helicopter[-1]}!")
 
 
+def show_all():
+    df = helicopters.show()
+    AgGrid(df, fit_columns_on_grid_load=True)
+
 
 if ("user_id" in st.session_state) and (employees.get_by_id(st.session_state["user_id"])[4] == enum.сeo):
     add_helicopter()
     delete_helicopter()
-    if (employees.get_by_id(st.session_state["user_id"])[4] == enum.engineer) or (employees.get_by_id(st.session_state["user_id"])[4] == enum.сeo):
-        connection_helicopter_part()
-        delete_part()
+    connection_helicopter_employee()
+    delete_connection_group_helicopter()
+if (employees.get_by_id(st.session_state["user_id"])[4] == enum.engineer) or (employees.get_by_id(st.session_state["user_id"])[4] == enum.сeo):
+    delete_part()
+    show_all()

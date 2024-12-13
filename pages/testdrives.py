@@ -1,6 +1,8 @@
 from datetime import datetime
 import psycopg2
 import streamlit as st
+from st_aggrid import AgGrid
+
 from repositories import employees, testdrives, helicopters
 from database import enum
 
@@ -31,6 +33,25 @@ def add_testdrive():
 
             st.success("Полет успешно добавлен!")
 
+def watch_report():
+    with st.expander("Посмотреть отчет"):
+        testdrive_id = st.text_input("Id полета из таблицы ниже")
+
+        if st.button("Отправить", key=12):
+            try:
+                st.markdown(testdrives.get_report(testdrive_id))
+            except TypeError:
+                st.error("Такого полета не существует")
+
+
+def show_all():
+    df = testdrives.show()
+    AgGrid(df, fit_columns_on_grid_load=True)
+
 
 if ("user_id" in st.session_state) and (employees.get_by_id(st.session_state["user_id"])[4] == enum.сeo):
     add_testdrive()
+
+if "user_id" in st.session_state:
+    watch_report()
+    show_all()

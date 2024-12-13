@@ -11,7 +11,10 @@ if len(args) == 0:
     exit()
 
 if args[0] == "up":
-    up(1)
+    if args[1]:
+        up(int(args[1]))
+    else:
+        up(0)
 if args[0] == "down":
     down()
 
